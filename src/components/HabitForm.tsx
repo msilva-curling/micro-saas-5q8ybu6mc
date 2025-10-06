@@ -14,19 +14,14 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useHabits } from '@/hooks/useHabits'
-import { Habit, Day, AllDays } from '@/types/habit'
+import { Habit, AllDays, Weekdays, Weekends } from '@/types/habit'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useEffect } from 'react'
 
 const habitSchema = z.object({
   name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
   description: z.string().optional(),
-  frequency: z.union([
-    z.literal('Todos os dias'),
-    z.literal('Dias da semana'),
-    z.literal('Fins de semana'),
-    z.array(z.string()).min(1, 'Selecione pelo menos um dia.'),
-  ]),
+  frequency: z.array(z.enum(AllDays)).min(1, 'Selecione pelo menos um dia.'),
   color: z.string().regex(/^#[0-9a-f]{6}$/i, 'Cor inválida.'),
 })
 
@@ -57,7 +52,7 @@ export const HabitForm = ({ habitToEdit, onCancel }: HabitFormProps) => {
     defaultValues: {
       name: '',
       description: '',
-      frequency: 'Todos os dias',
+      frequency: [...AllDays],
       color: colorPalette[0],
     },
   })
@@ -69,7 +64,7 @@ export const HabitForm = ({ habitToEdit, onCancel }: HabitFormProps) => {
       form.reset({
         name: '',
         description: '',
-        frequency: 'Todos os dias',
+        frequency: [...AllDays],
         color: colorPalette[0],
       })
     }
@@ -135,37 +130,37 @@ export const HabitForm = ({ habitToEdit, onCancel }: HabitFormProps) => {
                   <FormLabel>Frequência</FormLabel>
                   <FormControl>
                     <div>
-                      <ToggleGroup
-                        type="single"
-                        defaultValue="Todos os dias"
-                        onValueChange={(value) =>
-                          value && field.onChange(value)
-                        }
-                        value={
-                          typeof field.value === 'string'
-                            ? field.value
-                            : undefined
-                        }
-                      >
-                        <ToggleGroupItem value="Todos os dias">
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => field.onChange([...AllDays])}
+                        >
                           Todos os dias
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="Dias da semana">
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => field.onChange([...Weekdays])}
+                        >
                           Dias da semana
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="Fins de semana">
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => field.onChange([...Weekends])}
+                        >
                           Fins de semana
-                        </ToggleGroupItem>
-                      </ToggleGroup>
+                        </Button>
+                      </div>
                       <ToggleGroup
                         type="multiple"
-                        className="mt-2"
-                        onValueChange={(value) =>
-                          field.onChange(
-                            value.length > 0 ? value : 'Todos os dias',
-                          )
-                        }
-                        value={Array.isArray(field.value) ? field.value : []}
+                        className="mt-2 justify-start flex-wrap"
+                        onValueChange={field.onChange}
+                        value={field.value || []}
                       >
                         {AllDays.map((day) => (
                           <ToggleGroupItem key={day} value={day}>
@@ -192,7 +187,7 @@ export const HabitForm = ({ habitToEdit, onCancel }: HabitFormProps) => {
                           type="button"
                           key={color}
                           onClick={() => field.onChange(color)}
-                          className={`w-8 h-8 rounded-full border-2 ${field.value === color ? 'border-primary' : 'border-transparent'}`}
+                          className={`w-8 h-8 rounded-full border-2 transition-all ${field.value === color ? 'border-primary ring-2 ring-primary/50' : 'border-transparent'}`}
                           style={{ backgroundColor: color }}
                         />
                       ))}

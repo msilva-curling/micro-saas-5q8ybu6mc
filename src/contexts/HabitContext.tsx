@@ -5,7 +5,7 @@ import {
   ReactNode,
   useCallback,
 } from 'react'
-import { Habit } from '@/types/habit'
+import { Habit, AllDays, Weekdays } from '@/types/habit'
 import { toast } from '@/components/ui/use-toast'
 
 interface HabitContextType {
@@ -26,7 +26,7 @@ const initialHabits: Habit[] = [
     id: '1',
     name: 'Beber 2 litros de água',
     description: 'Manter-se hidratado durante o dia.',
-    frequency: 'Todos os dias',
+    frequency: AllDays,
     color: '#3b82f6',
     createdAt: new Date().toISOString(),
     completions: { '2025-10-05': true, '2025-10-04': true },
@@ -35,7 +35,7 @@ const initialHabits: Habit[] = [
     id: '2',
     name: 'Ler 30 minutos',
     description: 'Ler um livro de ficção ou não-ficção.',
-    frequency: 'Dias da semana',
+    frequency: Weekdays,
     color: '#8b5cf6',
     createdAt: new Date().toISOString(),
     completions: { '2025-10-03': true },

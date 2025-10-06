@@ -3,13 +3,26 @@ import { useHabits } from '@/hooks/useHabits'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Pencil, Trash2 } from 'lucide-react'
-import { Habit } from '@/types/habit'
+import { Habit, Weekdays, Weekends, AllDays, Day } from '@/types/habit'
 import { HabitForm } from '@/components/HabitForm'
 import { DeleteHabitDialog } from '@/components/DeleteHabitDialog'
 
-const frequencyMap = (freq: Habit['frequency']) => {
-  if (Array.isArray(freq)) return freq.join(', ')
-  return freq
+const frequencyMap = (freq: Day[]) => {
+  const freqSet = new Set(freq)
+  if (freqSet.size === 7) return 'Todos os dias'
+
+  const weekdaysSet = new Set(Weekdays)
+  const weekendsSet = new Set(Weekends)
+
+  const isSameSet = (a: Set<Day>, b: Set<Day>) =>
+    a.size === b.size && [...a].every((value) => b.has(value))
+
+  if (isSameSet(freqSet, weekdaysSet)) return 'Dias da semana'
+  if (isSameSet(freqSet, weekendsSet)) return 'Fins de semana'
+
+  return [...freq]
+    .sort((a, b) => AllDays.indexOf(a) - AllDays.indexOf(b))
+    .join(', ')
 }
 
 export default function HabitosPage() {
@@ -42,7 +55,7 @@ export default function HabitosPage() {
               {habits.map((habit) => (
                 <li
                   key={habit.id}
-                  className="flex items-center justify-between p-4 border rounded-lg bg-background-secondary shadow-sm"
+                  className="flex items-center justify-between p-4 border rounded-lg bg-card shadow-sm"
                 >
                   <div className="flex items-center gap-4">
                     <div
@@ -50,10 +63,10 @@ export default function HabitosPage() {
                       style={{ backgroundColor: habit.color }}
                     />
                     <div>
-                      <p className="font-semibold text-text-primary">
+                      <p className="font-semibold text-card-foreground">
                         {habit.name}
                       </p>
-                      <p className="text-sm text-text-secondary">
+                      <p className="text-sm text-muted-foreground">
                         {frequencyMap(habit.frequency)}
                       </p>
                     </div>
@@ -78,7 +91,7 @@ export default function HabitosPage() {
               ))}
             </ul>
           ) : (
-            <p className="text-center text-text-secondary py-8">
+            <p className="text-center text-muted-foreground py-8">
               Nenhum hábito ainda. Que tal adicionar um?
             </p>
           )}

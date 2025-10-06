@@ -1,7 +1,7 @@
 /* General utility functions (exposes cn) */
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { Day, Weekdays, Weekends, AllDays, Habit } from '@/types/habit'
+import { Day, AllDays, Habit } from '@/types/habit'
 import { format, getDay, isToday } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
@@ -23,20 +23,7 @@ export function formatDate(date: Date): string {
 export function isHabitScheduledForToday(habit: Habit): boolean {
   const todayIndex = getDay(new Date()) // Sunday = 0, Monday = 1, etc.
   const todayDay: Day = AllDays[todayIndex]
-
-  if (habit.frequency === 'Todos os dias') {
-    return true
-  }
-  if (habit.frequency === 'Dias da semana') {
-    return Weekdays.includes(todayDay)
-  }
-  if (habit.frequency === 'Fins de semana') {
-    return Weekends.includes(todayDay)
-  }
-  if (Array.isArray(habit.frequency)) {
-    return habit.frequency.includes(todayDay)
-  }
-  return false
+  return habit.frequency.includes(todayDay)
 }
 
 export function getStreak(completions: Record<string, boolean>): {
