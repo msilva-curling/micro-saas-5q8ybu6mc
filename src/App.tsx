@@ -4,26 +4,27 @@ import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import Index from './pages/Index'
+import HabitosPage from './pages/Habitos'
+import ProgressoPage from './pages/Progresso'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
-
-// ONLY IMPORT AND RENDER WORKING PAGES, NEVER ADD PLACEHOLDER COMPONENTS OR PAGES IN THIS FILE
-// AVOID REMOVING ANY CONTEXT PROVIDERS FROM THIS FILE (e.g. TooltipProvider, Toaster, Sonner)
+import { HabitProvider } from './contexts/HabitContext'
 
 const App = () => (
-  <BrowserRouter
-    future={{ v7_startTransition: false, v7_relativeSplatPath: false }}
-  >
+  <BrowserRouter>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES MUST BE ADDED HERE */}
-        </Route>
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <HabitProvider>
+        <Toaster />
+        <Sonner />
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Index />} />
+            <Route path="/habitos" element={<HabitosPage />} />
+            <Route path="/progresso" element={<ProgressoPage />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </HabitProvider>
     </TooltipProvider>
   </BrowserRouter>
 )
