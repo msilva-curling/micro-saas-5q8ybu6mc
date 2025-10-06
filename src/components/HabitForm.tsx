@@ -1,5 +1,4 @@
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm, FieldErrors } from 'react-hook-form'
 import * as z from 'zod'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,14 +13,22 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useHabits } from '@/hooks/useHabits'
-import { Habit, AllDays, Weekdays, Weekends } from '@/types/habit'
+import {
+  Habit,
+  AllDays,
+  Weekdays,
+  Weekends,
+  ALL_DAYS_TUPLE,
+} from '@/types/habit'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useEffect } from 'react'
 
 const habitSchema = z.object({
   name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
   description: z.string().optional(),
-  frequency: z.array(z.enum(AllDays)).min(1, 'Selecione pelo menos um dia.'),
+  frequency: z
+    .array(z.enum(ALL_DAYS_TUPLE))
+    .min(1, 'Selecione pelo menos um dia.'),
   color: z.string().regex(/^#[0-9a-f]{6}$/i, 'Cor inválida.'),
 })
 
@@ -40,6 +47,27 @@ const colorPalette = [
   '#d946ef',
 ]
 
+const customResolver = async (data: HabitFormData) => {
+  try {
+    const validatedData = await habitSchema.parseAsync(data)
+    return { values: validatedData, errors: {} }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        values: {},
+        errors: error.issues.reduce((acc, issue) => {
+          acc[issue.path[0] as keyof HabitFormData] = {
+            type: issue.code,
+            message: issue.message,
+          }
+          return acc
+        }, {} as FieldErrors<HabitFormData>),
+      }
+    }
+    throw error
+  }
+}
+
 interface HabitFormProps {
   habitToEdit?: Habit | null
   onCancel?: () => void
@@ -48,7 +76,7 @@ interface HabitFormProps {
 export const HabitForm = ({ habitToEdit, onCancel }: HabitFormProps) => {
   const { addHabit, updateHabit } = useHabits()
   const form = useForm<HabitFormData>({
-    resolver: zodResolver(habitSchema),
+    resolver: customResolver,
     defaultValues: {
       name: '',
       description: '',

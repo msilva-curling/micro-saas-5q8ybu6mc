@@ -1,4 +1,13 @@
-export type Day = 'Dom' | 'Seg' | 'Ter' | 'Qua' | 'Qui' | 'Sex' | 'Sáb'
+export const ALL_DAYS_TUPLE = [
+  'Dom',
+  'Seg',
+  'Ter',
+  'Qua',
+  'Qui',
+  'Sex',
+  'Sáb',
+] as const
+export type Day = (typeof ALL_DAYS_TUPLE)[number]
 
 export const Weekdays: Day[] = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex']
 export const Weekends: Day[] = ['Dom', 'Sáb']
