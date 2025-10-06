@@ -30,6 +30,8 @@ const initialHabits: Habit[] = [
     color: '#3b82f6',
     createdAt: new Date().toISOString(),
     completions: { '2025-10-05': true, '2025-10-04': true },
+    reminderEnabled: true,
+    reminderTime: '09:00',
   },
   {
     id: '2',
@@ -39,6 +41,7 @@ const initialHabits: Habit[] = [
     color: '#8b5cf6',
     createdAt: new Date().toISOString(),
     completions: { '2025-10-03': true },
+    reminderEnabled: false,
   },
 ]
 

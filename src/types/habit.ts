@@ -23,4 +23,6 @@ export interface Habit {
   color: string
   createdAt: string // ISO string
   completions: Record<string, boolean> // { 'YYYY-MM-DD': true }
+  reminderEnabled?: boolean
+  reminderTime?: string // 'HH:mm'
 }

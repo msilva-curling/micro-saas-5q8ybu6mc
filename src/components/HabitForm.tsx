@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -22,15 +23,32 @@ import {
 } from '@/types/habit'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useEffect } from 'react'
+import { Switch } from './ui/switch'
+import { useNotifications } from '@/hooks/useNotifications'
 
-const habitSchema = z.object({
-  name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
-  description: z.string().optional(),
-  frequency: z
-    .array(z.enum(ALL_DAYS_TUPLE))
-    .min(1, 'Selecione pelo menos um dia.'),
-  color: z.string().regex(/^#[0-9a-f]{6}$/i, 'Cor inválida.'),
-})
+const habitSchema = z
+  .object({
+    name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
+    description: z.string().optional(),
+    frequency: z
+      .array(z.enum(ALL_DAYS_TUPLE))
+      .min(1, 'Selecione pelo menos um dia.'),
+    color: z.string().regex(/^#[0-9a-f]{6}$/i, 'Cor inválida.'),
+    reminderEnabled: z.boolean().optional(),
+    reminderTime: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.reminderEnabled && !data.reminderTime) {
+        return false
+      }
+      return true
+    },
+    {
+      message: 'Por favor, defina um horário para o lembrete.',
+      path: ['reminderTime'],
+    },
+  )
 
 type HabitFormData = z.infer<typeof habitSchema>
 
@@ -75,6 +93,7 @@ interface HabitFormProps {
 
 export const HabitForm = ({ habitToEdit, onCancel }: HabitFormProps) => {
   const { addHabit, updateHabit } = useHabits()
+  const { requestNotificationPermission } = useNotifications()
   const form = useForm<HabitFormData>({
     resolver: customResolver,
     defaultValues: {
@@ -82,21 +101,40 @@ export const HabitForm = ({ habitToEdit, onCancel }: HabitFormProps) => {
       description: '',
       frequency: [...AllDays],
       color: colorPalette[0],
+      reminderEnabled: false,
+      reminderTime: '09:00',
     },
   })
 
+  const reminderEnabled = form.watch('reminderEnabled')
+
   useEffect(() => {
     if (habitToEdit) {
-      form.reset(habitToEdit)
+      form.reset({
+        ...habitToEdit,
+        reminderEnabled: habitToEdit.reminderEnabled ?? false,
+        reminderTime: habitToEdit.reminderTime ?? '09:00',
+      })
     } else {
       form.reset({
         name: '',
         description: '',
         frequency: [...AllDays],
         color: colorPalette[0],
+        reminderEnabled: false,
+        reminderTime: '09:00',
       })
     }
   }, [habitToEdit, form])
+
+  const handleReminderToggle = async (checked: boolean) => {
+    if (checked) {
+      const permission = await requestNotificationPermission()
+      form.setValue('reminderEnabled', permission === 'granted')
+    } else {
+      form.setValue('reminderEnabled', false)
+    }
+  }
 
   const onSubmit = (data: HabitFormData) => {
     if (habitToEdit) {
@@ -225,6 +263,41 @@ export const HabitForm = ({ habitToEdit, onCancel }: HabitFormProps) => {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="reminderEnabled"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Lembretes</FormLabel>
+                    <FormDescription>
+                      Receber uma notificação para este hábito.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={handleReminderToggle}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            {reminderEnabled && (
+              <FormField
+                control={form.control}
+                name="reminderTime"
+                render={({ field }) => (
+                  <FormItem className="animate-fade-in-up">
+                    <FormLabel>Horário do Lembrete</FormLabel>
+                    <FormControl>
+                      <Input type="time" {...field} className="w-40" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <div className="flex gap-4">
               <Button type="submit">
                 {habitToEdit ? 'Salvar Alterações' : 'Salvar Hábito'}

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useHabits } from '@/hooks/useHabits'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2, Bell } from 'lucide-react'
 import { Habit, Weekdays, Weekends, AllDays, Day } from '@/types/habit'
 import { HabitForm } from '@/components/HabitForm'
 import { DeleteHabitDialog } from '@/components/DeleteHabitDialog'
@@ -57,21 +57,27 @@ export default function HabitosPage() {
                   key={habit.id}
                   className="flex items-center justify-between p-4 border rounded-lg bg-card shadow-sm"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 flex-grow">
                     <div
-                      className="w-4 h-4 rounded-full"
+                      className="w-4 h-4 rounded-full flex-shrink-0"
                       style={{ backgroundColor: habit.color }}
                     />
-                    <div>
+                    <div className="flex-grow">
                       <p className="font-semibold text-card-foreground">
                         {habit.name}
                       </p>
-                      <p className="text-sm text-muted-foreground">
-                        {frequencyMap(habit.frequency)}
-                      </p>
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                        <span>{frequencyMap(habit.frequency)}</span>
+                        {habit.reminderEnabled && habit.reminderTime && (
+                          <div className="flex items-center gap-1">
+                            <Bell className="h-3 w-3" />
+                            <span>{habit.reminderTime}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 ml-4">
                     <Button
                       variant="ghost"
                       size="icon"
