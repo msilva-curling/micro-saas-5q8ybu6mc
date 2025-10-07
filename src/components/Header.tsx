@@ -24,7 +24,7 @@ export const Header = () => {
         <Link to="/" className="flex items-center gap-2">
           <Droplets className="h-6 w-6 text-primary" />
           <span className="text-lg font-bold text-text-primary">
-            Hábitoss Diários
+            Hábit Diários
           </span>
         </Link>
 
