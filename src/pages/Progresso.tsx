@@ -9,8 +9,8 @@ import {
 } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CalendarHeatmap } from '@/components/CalendarHeatmap'
-import { getStreak } from '@/lib/utils'
-import { Flame, Trophy } from 'lucide-react'
+import { getStreak, getWeeklyCompletions } from '@/lib/utils'
+import { Flame, Trophy, Target } from 'lucide-react'
 
 export default function ProgressoPage() {
   const { habits } = useHabits()
@@ -27,6 +27,13 @@ export default function ProgressoPage() {
       return getStreak(selectedHabit.completions)
     }
     return { current: 0, best: 0 }
+  }, [selectedHabit])
+
+  const weeklyCompletions = useMemo(() => {
+    if (selectedHabit) {
+      return getWeeklyCompletions(selectedHabit.completions)
+    }
+    return 0
   }, [selectedHabit])
 
   return (
@@ -52,7 +59,7 @@ export default function ProgressoPage() {
           </Select>
 
           {selectedHabit && (
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <Card>
                 <CardHeader className="flex-row items-center justify-between pb-2">
                   <CardTitle className="text-base font-medium">
@@ -75,6 +82,21 @@ export default function ProgressoPage() {
                   <div className="text-2xl font-bold">{best} dias</div>
                 </CardContent>
               </Card>
+              {selectedHabit.goalType === 'weekly' && (
+                <Card>
+                  <CardHeader className="flex-row items-center justify-between pb-2">
+                    <CardTitle className="text-base font-medium">
+                      Completado esta Semana
+                    </CardTitle>
+                    <Target className="h-5 w-5 text-primary" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {weeklyCompletions} / {selectedHabit.weeklyGoal}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           )}
 

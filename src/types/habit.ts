@@ -15,6 +15,8 @@ export const AllDays: Day[] = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 
 export type Frequency = Day[]
 
+export type GoalType = 'daily' | 'weekly'
+
 export interface Habit {
   id: string
   name: string
@@ -25,4 +27,6 @@ export interface Habit {
   completions: Record<string, boolean> // { 'YYYY-MM-DD': true }
   reminderEnabled?: boolean
   reminderTime?: string // 'HH:mm'
+  goalType: GoalType
+  weeklyGoal?: number // e.g., 3 times a week
 }

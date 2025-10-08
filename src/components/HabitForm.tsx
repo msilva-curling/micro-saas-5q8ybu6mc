@@ -25,6 +25,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useEffect } from 'react'
 import { Switch } from '@/components/ui/switch'
 import { useNotifications } from '@/hooks/useNotifications'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
 const habitSchema = z
   .object({
@@ -36,6 +37,8 @@ const habitSchema = z
     color: z.string().regex(/^#[0-9a-f]{6}$/i, 'Cor inválida.'),
     reminderEnabled: z.boolean().optional(),
     reminderTime: z.string().optional(),
+    goalType: z.enum(['daily', 'weekly']),
+    weeklyGoal: z.coerce.number().optional(),
   })
   .refine(
     (data) => {
@@ -47,6 +50,21 @@ const habitSchema = z
     {
       message: 'Por favor, defina um horário para o lembrete.',
       path: ['reminderTime'],
+    },
+  )
+  .refine(
+    (data) => {
+      if (
+        data.goalType === 'weekly' &&
+        (!data.weeklyGoal || data.weeklyGoal <= 0)
+      ) {
+        return false
+      }
+      return true
+    },
+    {
+      message: 'Defina uma meta semanal maior que zero.',
+      path: ['weeklyGoal'],
     },
   )
 
@@ -103,10 +121,13 @@ export const HabitForm = ({ habitToEdit, onCancel }: HabitFormProps) => {
       color: colorPalette[0],
       reminderEnabled: false,
       reminderTime: '09:00',
+      goalType: 'daily',
+      weeklyGoal: 3,
     },
   })
 
   const reminderEnabled = form.watch('reminderEnabled')
+  const goalType = form.watch('goalType')
 
   useEffect(() => {
     if (habitToEdit) {
@@ -114,6 +135,7 @@ export const HabitForm = ({ habitToEdit, onCancel }: HabitFormProps) => {
         ...habitToEdit,
         reminderEnabled: habitToEdit.reminderEnabled ?? false,
         reminderTime: habitToEdit.reminderTime ?? '09:00',
+        weeklyGoal: habitToEdit.weeklyGoal ?? 3,
       })
     } else {
       form.reset({
@@ -123,6 +145,8 @@ export const HabitForm = ({ habitToEdit, onCancel }: HabitFormProps) => {
         color: colorPalette[0],
         reminderEnabled: false,
         reminderTime: '09:00',
+        goalType: 'daily',
+        weeklyGoal: 3,
       })
     }
   }, [habitToEdit, form])
@@ -140,7 +164,7 @@ export const HabitForm = ({ habitToEdit, onCancel }: HabitFormProps) => {
     if (habitToEdit) {
       updateHabit({ ...habitToEdit, ...data })
     } else {
-      addHabit(data)
+      addHabit(data as Omit<Habit, 'id' | 'createdAt' | 'completions'>)
     }
     form.reset()
     onCancel?.()
@@ -190,10 +214,72 @@ export const HabitForm = ({ habitToEdit, onCancel }: HabitFormProps) => {
             />
             <FormField
               control={form.control}
+              name="goalType"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>Tipo de Meta</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex flex-col space-y-1"
+                    >
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="daily" />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          Meta Diária (completar todos os dias agendados)
+                        </FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="weekly" />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          Meta Semanal (completar um número de vezes por semana)
+                        </FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {goalType === 'weekly' && (
+              <FormField
+                control={form.control}
+                name="weeklyGoal"
+                render={({ field }) => (
+                  <FormItem className="animate-fade-in-up">
+                    <FormLabel>Meta Semanal</FormLabel>
+                    <FormControl>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          min="1"
+                          {...field}
+                          className="w-24"
+                        />
+                        <span className="text-muted-foreground">
+                          vezes por semana
+                        </span>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+            <FormField
+              control={form.control}
               name="frequency"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Frequência</FormLabel>
+                  <FormDescription>
+                    Selecione os dias em que este hábito deve aparecer.
+                  </FormDescription>
                   <FormControl>
                     <div>
                       <div className="flex flex-wrap gap-2 mb-2">

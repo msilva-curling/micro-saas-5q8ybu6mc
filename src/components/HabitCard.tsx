@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import {
   Card,
   CardContent,
@@ -8,12 +8,13 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Check, Flame } from 'lucide-react'
+import { Check, Flame, Target } from 'lucide-react'
 import { Habit } from '@/types/habit'
 import { useHabits } from '@/hooks/useHabits'
-import { cn, getStreak } from '@/lib/utils'
+import { cn, getStreak, getWeeklyCompletions } from '@/lib/utils'
 import { format } from 'date-fns'
 import { toast } from '@/components/ui/use-toast'
+import { Progress } from '@/components/ui/progress'
 
 interface HabitCardProps {
   habit: Habit
@@ -22,14 +23,24 @@ interface HabitCardProps {
 export const HabitCard = ({ habit }: HabitCardProps) => {
   const { toggleHabitCompletion } = useHabits()
   const todayStr = format(new Date(), 'yyyy-MM-dd')
-  const isCompleted = !!habit.completions[todayStr]
+  const isCompletedToday = !!habit.completions[todayStr]
   const [showUndo, setShowUndo] = useState(false)
 
-  const { current } = getStreak(habit.completions)
+  const { current: currentStreak } = getStreak(habit.completions)
+  const weeklyCompletions = useMemo(
+    () => getWeeklyCompletions(habit.completions),
+    [habit.completions],
+  )
+
+  const isWeeklyGoalMet =
+    habit.goalType === 'weekly' && weeklyCompletions >= (habit.weeklyGoal ?? 0)
+
+  const isCompleted =
+    habit.goalType === 'daily' ? isCompletedToday : isWeeklyGoalMet
 
   const handleComplete = () => {
     toggleHabitCompletion(habit.id, todayStr)
-    if (!isCompleted) {
+    if (!isCompletedToday) {
       setShowUndo(true)
       setTimeout(() => setShowUndo(false), 3000)
     }
@@ -41,10 +52,17 @@ export const HabitCard = ({ habit }: HabitCardProps) => {
     toast({ title: 'Ação desfeita.' })
   }
 
+  const progressValue =
+    habit.goalType === 'weekly'
+      ? (weeklyCompletions / (habit.weeklyGoal || 1)) * 100
+      : isCompletedToday
+        ? 100
+        : 0
+
   return (
     <Card
       className={cn(
-        'transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1',
+        'transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 flex flex-col',
         isCompleted && 'bg-green-50 border-green-200',
       )}
     >
@@ -60,7 +78,7 @@ export const HabitCard = ({ habit }: HabitCardProps) => {
           </CardTitle>
           <div className="flex items-center gap-1 text-secondary font-semibold">
             <Flame className="h-4 w-4" />
-            <span>{current}</span>
+            <span>{currentStreak}</span>
           </div>
         </div>
         <CardDescription
@@ -69,21 +87,36 @@ export const HabitCard = ({ habit }: HabitCardProps) => {
           {habit.description}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-grow space-y-4">
+        {habit.goalType === 'weekly' && (
+          <div className="space-y-2">
+            <div className="flex justify-between items-center text-sm text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <Target className="h-4 w-4" />
+                <span>Progresso Semanal</span>
+              </div>
+              <span>
+                {weeklyCompletions}/{habit.weeklyGoal}
+              </span>
+            </div>
+            <Progress value={progressValue} />
+          </div>
+        )}
         <Button
           onClick={handleComplete}
+          disabled={isCompletedToday}
           className={cn(
             'w-full transition-all duration-300',
-            isCompleted
+            isCompletedToday
               ? 'bg-success hover:bg-success/90'
               : 'bg-primary hover:bg-primary-hover',
           )}
         >
-          {isCompleted ? <Check className="mr-2 h-4 w-4" /> : null}
-          {isCompleted ? 'Concluído!' : 'Marcar como Concluído'}
+          {isCompletedToday ? <Check className="mr-2 h-4 w-4" /> : null}
+          {isCompletedToday ? 'Concluído Hoje!' : 'Marcar como Concluído'}
         </Button>
       </CardContent>
-      {showUndo && isCompleted && (
+      {showUndo && isCompletedToday && (
         <CardFooter>
           <Button
             variant="link"

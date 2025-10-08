@@ -32,6 +32,7 @@ const initialHabits: Habit[] = [
     completions: { '2025-10-05': true, '2025-10-04': true },
     reminderEnabled: true,
     reminderTime: '09:00',
+    goalType: 'daily',
   },
   {
     id: '2',
@@ -42,6 +43,20 @@ const initialHabits: Habit[] = [
     createdAt: new Date().toISOString(),
     completions: { '2025-10-03': true },
     reminderEnabled: false,
+    goalType: 'daily',
+  },
+  {
+    id: '3',
+    name: 'Ir à academia',
+    description: 'Fazer treino de musculação.',
+    frequency: ['Seg', 'Qua', 'Sex'],
+    color: '#ef4444',
+    createdAt: new Date().toISOString(),
+    completions: { '2025-10-03': true },
+    reminderEnabled: true,
+    reminderTime: '18:00',
+    goalType: 'weekly',
+    weeklyGoal: 3,
   },
 ]
 
@@ -50,7 +65,11 @@ export function HabitProvider({ children }: { children: ReactNode }) {
     try {
       const storedHabits = localStorage.getItem('habits')
       if (storedHabits) {
-        return JSON.parse(storedHabits)
+        const parsedHabits = JSON.parse(storedHabits)
+        return parsedHabits.map((h: Habit) => ({
+          ...h,
+          goalType: h.goalType || 'daily',
+        }))
       }
       localStorage.setItem('habits', JSON.stringify(initialHabits))
       return initialHabits
@@ -71,6 +90,8 @@ export function HabitProvider({ children }: { children: ReactNode }) {
         id: crypto.randomUUID(),
         createdAt: new Date().toISOString(),
         completions: {},
+        weeklyGoal:
+          habitData.goalType === 'weekly' ? habitData.weeklyGoal : undefined,
       }
       setHabits((prev) => [...prev, newHabit])
       toast({ title: 'Hábito salvo com sucesso!' })
@@ -80,7 +101,17 @@ export function HabitProvider({ children }: { children: ReactNode }) {
 
   const updateHabit = useCallback((updatedHabit: Habit) => {
     setHabits((prev) =>
-      prev.map((h) => (h.id === updatedHabit.id ? updatedHabit : h)),
+      prev.map((h) =>
+        h.id === updatedHabit.id
+          ? {
+              ...updatedHabit,
+              weeklyGoal:
+                updatedHabit.goalType === 'weekly'
+                  ? updatedHabit.weeklyGoal
+                  : undefined,
+            }
+          : h,
+      ),
     )
     toast({ title: 'Hábito atualizado com sucesso!' })
   }, [])

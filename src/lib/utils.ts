@@ -2,7 +2,14 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { Day, AllDays, Habit } from '@/types/habit'
-import { format, getDay, isToday } from 'date-fns'
+import {
+  format,
+  getDay,
+  isToday,
+  startOfWeek,
+  endOfWeek,
+  isWithinInterval,
+} from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
 /**
@@ -24,6 +31,28 @@ export function isHabitScheduledForToday(habit: Habit): boolean {
   const todayIndex = getDay(new Date()) // Sunday = 0, Monday = 1, etc.
   const todayDay: Day = AllDays[todayIndex]
   return habit.frequency.includes(todayDay)
+}
+
+export function getWeeklyCompletions(
+  completions: Record<string, boolean>,
+): number {
+  const today = new Date()
+  const weekStart = startOfWeek(today, { locale: ptBR })
+  const weekEnd = endOfWeek(today, { locale: ptBR })
+
+  return Object.keys(completions).filter((dateStr) => {
+    if (!completions[dateStr]) return false
+    const completionDate = new Date(dateStr)
+    const utcCompletionDate = new Date(
+      completionDate.getUTCFullYear(),
+      completionDate.getUTCMonth(),
+      completionDate.getUTCDate(),
+    )
+    return isWithinInterval(utcCompletionDate, {
+      start: weekStart,
+      end: weekEnd,
+    })
+  }).length
 }
 
 export function getStreak(completions: Record<string, boolean>): {

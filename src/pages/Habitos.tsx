@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useHabits } from '@/hooks/useHabits'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Pencil, Trash2, Bell } from 'lucide-react'
+import { Pencil, Trash2, Bell, Target } from 'lucide-react'
 import { Habit, Weekdays, Weekends, AllDays, Day } from '@/types/habit'
 import { HabitForm } from '@/components/HabitForm'
 import { DeleteHabitDialog } from '@/components/DeleteHabitDialog'
@@ -68,6 +68,12 @@ export default function HabitosPage() {
                       </p>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
                         <span>{frequencyMap(habit.frequency)}</span>
+                        {habit.goalType === 'weekly' && (
+                          <div className="flex items-center gap-1">
+                            <Target className="h-3 w-3" />
+                            <span>{habit.weeklyGoal}x/semana</span>
+                          </div>
+                        )}
                         {habit.reminderEnabled && habit.reminderTime && (
                           <div className="flex items-center gap-1">
                             <Bell className="h-3 w-3" />
