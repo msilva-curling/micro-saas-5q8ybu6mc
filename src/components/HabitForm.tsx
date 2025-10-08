@@ -23,7 +23,7 @@ import {
 } from '@/types/habit'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useEffect } from 'react'
-import { Switch } from './ui/switch'
+import { Switch } from '@/components/ui/switch'
 import { useNotifications } from '@/hooks/useNotifications'
 
 const habitSchema = z

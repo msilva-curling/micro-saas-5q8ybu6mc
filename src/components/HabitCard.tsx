@@ -13,7 +13,7 @@ import { Habit } from '@/types/habit'
 import { useHabits } from '@/hooks/useHabits'
 import { cn, getStreak } from '@/lib/utils'
 import { format } from 'date-fns'
-import { toast } from './ui/use-toast'
+import { toast } from '@/components/ui/use-toast'
 
 interface HabitCardProps {
   habit: Habit

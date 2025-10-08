@@ -31,7 +31,7 @@ export default function ProgressoPage() {
 
   return (
     <div className="space-y-8 animate-fade-in-up">
-      <h1 className="text-3xl font-bold text-text-primary">Seu Progresso</h1>
+      <h1 className="text-3xl font-bold text-foreground">Seu Progresso</h1>
 
       {habits.length > 0 ? (
         <>
@@ -91,10 +91,10 @@ export default function ProgressoPage() {
         </>
       ) : (
         <div className="text-center py-16">
-          <p className="text-lg text-text-secondary">
+          <p className="text-lg text-muted-foreground">
             Você ainda não tem hábitos para acompanhar o progresso.
           </p>
-          <p className="text-text-secondary">
+          <p className="text-muted-foreground">
             Adicione um hábito para começar!
           </p>
         </div>

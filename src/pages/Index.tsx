@@ -32,10 +32,12 @@ export default function Index() {
   return (
     <div className="space-y-8 animate-fade-in-up">
       <div>
-        <h1 className="text-3xl md:text-4xl font-bold text-text-primary">
+        <h1 className="text-3xl md:text-4xl font-bold text-foreground">
           Olá! Vamos construir bons hábitos hoje?
         </h1>
-        <p className="text-lg text-text-secondary mt-2">{formatDate(today)}</p>
+        <p className="text-lg text-muted-foreground mt-2">
+          {formatDate(today)}
+        </p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
@@ -66,7 +68,7 @@ export default function Index() {
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold text-text-primary mb-4">
+        <h2 className="text-2xl font-bold text-foreground mb-4">
           Seus hábitos de hoje
         </h2>
         {dailyHabits.length > 0 ? (
@@ -77,7 +79,7 @@ export default function Index() {
           </div>
         ) : (
           <div className="text-center py-16 border-2 border-dashed rounded-lg">
-            <p className="text-lg text-text-secondary">
+            <p className="text-lg text-muted-foreground">
               Nenhum hábito para hoje.
             </p>
             <Button asChild className="mt-4">

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { Menu, X, Droplets } from 'lucide-react'
+import { Menu, Droplets } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
@@ -15,7 +15,7 @@ export const Header = () => {
   const [isOpen, setIsOpen] = useState(false)
 
   const linkClass =
-    'text-text-secondary hover:text-primary transition-colors duration-200 ease-out'
+    'text-muted-foreground hover:text-primary transition-colors duration-200 ease-out'
   const activeLinkClass = 'text-primary font-semibold'
 
   return (
@@ -23,7 +23,7 @@ export const Header = () => {
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <Droplets className="h-6 w-6 text-primary" />
-          <span className="text-lg font-bold text-text-primary">
+          <span className="text-lg font-bold text-foreground">
             Hábit Diários
           </span>
         </Link>
@@ -58,7 +58,7 @@ export const Header = () => {
                     onClick={() => setIsOpen(false)}
                   >
                     <Droplets className="h-6 w-6 text-primary" />
-                    <span className="text-lg font-bold text-text-primary">
+                    <span className="text-lg font-bold text-foreground">
                       Hábitos Diários
                     </span>
                   </Link>

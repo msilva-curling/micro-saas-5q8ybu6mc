@@ -41,7 +41,7 @@ export default function HabitosPage() {
 
   return (
     <div className="space-y-8 animate-fade-in-up">
-      <h1 className="text-3xl font-bold text-text-primary">Meus Hábitos</h1>
+      <h1 className="text-3xl font-bold text-foreground">Meus Hábitos</h1>
 
       <HabitForm habitToEdit={editingHabit} onCancel={handleCancelEdit} />
 
